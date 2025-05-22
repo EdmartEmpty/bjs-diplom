@@ -12,7 +12,7 @@ userData.loginFormCallback = (data) => {
         } else if (response.success === false) {
             userData.setLoginErrorMessage("Не верные логин и пароль");
         }
-        console.log("Okey", data, response.success)
+        
     })
 };
 
@@ -26,5 +26,5 @@ userData.registerFormCallback = (data) =>
         } else if (response.success === false) {
             userData.setRegisterErrorMessage("Ошибка");
         }
-        console.log("Okey", data, response.success)
+        
     });

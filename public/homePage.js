@@ -1,5 +1,7 @@
 "use strict";
 
+
+
 let exitButton = new LogoutButton();
 
 
@@ -34,7 +36,80 @@ setInterval(() => getExchangeRate(), 60000);
 
 let cashMetod = new MoneyManager();
 
-cashMetod.addMoneyCallback = ()=> ApiConnector.addMoney({},data => console.log(data));
+cashMetod.addMoneyCallback = (data) => ApiConnector.addMoney(data, response => {
+    if (response.success === true) {
+
+        setTimeout(() => ApiConnector.current(user => ProfileWidget.showProfile(user.data)), 1000);
+        cashMetod.setMessage(true, "Добалвено");
+
+    }
+    else {
+        cashMetod.setMessage(false, "Ошибка");
+    }
+});
+
+cashMetod.conversionMoneyCallback = (data) => ApiConnector.convertMoney(data, response => {
+    if (response.success === true) {
+
+        setTimeout(() => ApiConnector.current(user => ProfileWidget.showProfile(user.data)), 1000);
+        cashMetod.setMessage(true, "Добалвено");
+
+    }
+    else {
+        cashMetod.setMessage(false, "Ошибка");
+    }
+});
+
+cashMetod.sendMoneyCallback = (data) => ApiConnector.transferMoney(data, response => {
+    console.log(response);
+    if (response.success === true) {
+
+        setTimeout(() => ApiConnector.current(user => ProfileWidget.showProfile(user.data)), 1000);
+        cashMetod.setMessage(true, `Перевод кол-во ${data.amount} валюта ${data.currency}`);
+
+    }
+    else {
+        cashMetod.setMessage(false, response.error);
+    };
+});
+
+let frends = new FavoritesWidget();
+
+ApiConnector.getFavorites(response => {
+
+    if (response.success === true) {
+        frends.clearTable();
+        frends.fillTable(response.data);
+        cashMetod.updateUsersList(response.data);
+    }
+});
 
 
+frends.addUserCallback = (data) => ApiConnector.addUserToFavorites(data, (response) => {
+    if (response.success === true) {
+        frends.setMessage(true, `Добавлен новый пользователь ${data.name}`);
+        setTimeout(() => {
+            frends.clearTable();
+            frends.fillTable(response.data);
+            cashMetod.updateUsersList(response.data)
+        }, 1000);
+    } else {
+        frends.setMessage(false, response.error);
+    }
 
+});
+
+
+frends.removeUserCallback = (data) => ApiConnector.removeUserFromFavorites(data, (response) => {
+     
+    if (response.success === true) {
+        frends.setMessage(true, `Удален друг ${data}`);
+        setTimeout(() => {
+            frends.clearTable();
+            frends.fillTable(response.data);
+            cashMetod.updateUsersList(response.data)
+        }, 1000);
+    } else {
+        frends.setMessage(false, response.error);
+    }
+});
